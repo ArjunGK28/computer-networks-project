@@ -1,0 +1,2 @@
+test_data = b'\x08\x00\x00\x00\x00\x01\x00\x01'
+# checksum(test_data)
