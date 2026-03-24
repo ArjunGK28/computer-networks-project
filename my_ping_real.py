@@ -15,7 +15,7 @@ def checksum(data):
         s += (data[-1]<<8)
     
     while s >> 16: 
-        s = (s & 0XFFFF) + s>>16
+        s = (s & 0XFFFF) + (s>>16)
 
     return ~s & 0xFFFF
 
@@ -58,7 +58,8 @@ def ping(destination, count=4):
 
         packet = build_packet(identifier, sequence)
         sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
-        sock.settimeout(2.0)
+        sock.bind(("", 0))
+        sock.settimeout(5.0)
         sock.sendto(packet, (dest_ip, 0))
         
         try: 
@@ -89,6 +90,7 @@ def ping(destination, count=4):
 
         print(f"RTT min:{rtt_min:.2f}, RTT max:{rtt_max:.2f}, Average RTT:{rtt_avg:.2f}, jitter={rtt_std:.2f}ms")
 
-ping("8.8.4.4", count=4)
-
-
+ping("1.1.1.1", count=4)
+# ping("142.250.182.46", count=4) 
+# ping("13.107.4.52", count=4)      # Microsoft
+# ping("9.9.9.9", count=4)
