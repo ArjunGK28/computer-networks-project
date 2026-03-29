@@ -1,0 +1,1 @@
+traceroute can help us pin point which of the hops is the bottleneck 

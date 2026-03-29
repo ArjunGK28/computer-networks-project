@@ -25,7 +25,7 @@ def build_packet(identifier, sequence):
     return header + payload 
 
 def parse_tr_reply(raw_data, our_identifier, our_sequence):
-    ip_header_length = (raw_data[0] & 0x0F) * 4
+    ip_header_length = (raw_data[0] & 0x0F) * 4 
 
     icmp_data = raw_data[ip_header_length:]
 
