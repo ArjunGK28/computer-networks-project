@@ -195,7 +195,7 @@ def probe_loop(dest_ip, hops, max_hops, interval, stop_event):
                 hop.record_sent()
 
                 sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
-                sock.setsockopt(socket.IPPROTO_IP, socket.IP_TTL, ttl)
+                sock.setsockopt(socket.IPPROTO_IP, socket.IP_TTL, ttl) #set increasing ttl for each probing till destination reached or max(30)
                 sock.settimeout(2.0)
 
                 packet = build_packet(identifier, sequence)
@@ -313,27 +313,27 @@ def generate_summary(hops):
         if hop.is_congested():
             congestion_found = True
 
-    print("\n📊 Network Summary")
+    print("\nNetwork Summary")
     print("-" * 30)
 
     # Destination
     if destination_reached:
-        print("✔ Destination reachable")
+        print("Destination reachable")
     else:
-        print("❌ Destination not reachable")
+        print("Destination not reachable")
 
     # ICMP blocking
     if icmp_blocked_hops:
         hops_str = ", ".join(map(str, icmp_blocked_hops))
-        print(f"⚠ ICMP blocked at hops: {hops_str}")
+        print(f"ICMP blocked at hops: {hops_str}")
     else:
-        print("✔ No ICMP blocking detected")
+        print("No ICMP blocking detected")
 
     # Congestion
     if congestion_found:
-        print("⚠ Network congestion detected")
+        print("Network congestion detected")
     else:
-        print("✔ No congestion detected")
+        print("No congestion detected")
 
 # ── MAIN ─────────────────────────────────────────────────────────────────────
 
@@ -344,6 +344,7 @@ def run_mtr(destination, max_hops=30, interval=0.5):
 
     hops = [HopStats(ttl) for ttl in range(1, max_hops + 1)]
     stop_event = threading.Event()
+    latest_output = []
 
     t1 = threading.Thread(target=probe_loop,
                           args=(dest_ip, hops, max_hops, interval, stop_event),
@@ -353,7 +354,7 @@ def run_mtr(destination, max_hops=30, interval=0.5):
     time.sleep(2)
 
     t2 = threading.Thread(target=display_loop,
-                          args=(hops, stop_event),
+                          args=(hops, stop_event, latest_output, True),
                           daemon=True)
     t2.start()
 
@@ -377,7 +378,7 @@ def run_multi(destinations):
     for dest in destinations:
         try:
             dest_ip = socket.gethostbyname(dest)
-            print(f"\n🔍 Running MTR for {dest} ({dest_ip})...")
+            print(f"\nRunning MTR for {dest} ({dest_ip})...")
 
             hops = [HopStats(ttl) for ttl in range(1, 31)]
             stop_event = threading.Event()
@@ -391,29 +392,34 @@ def run_multi(destinations):
             probe_thread.start()
 
             # Let it run for some time (like 5–10 sec)
-            time.sleep(8)
+            start_time = time.time()
+            max_time = 25
+            while time.time() - start_time < max_time:
+                if any(hop.last_ip == dest_ip for hop in hops):
+                    break
+                time.sleep(1)
 
             stop_event.set()
             time.sleep(1)
 
-            # 🔥 Print final table (NO CLEAR)
+            #  Print final table (NO CLEAR)
             print_final_table(hops, dest)
 
-            # 🔥 Print summary
+            #  Print summary
             generate_summary(hops)
 
         except Exception as e:
-            print(f"\n❌ Error with {dest}: {e}")
+            print(f"\nError with {dest}: {e}")
 
 
 # ── RUN ──────────────────────────────────────────────────────────────────────
 
-# run_mtr("www.google.com")
+run_mtr("www.google.com")
 
-destinations = [
-    "www.google.com",
-    "www.cloudflare.com",
-    "www.github.com"
-]
+# destinations = [
+#     "www.google.com",
+#     "www.cloudflare.com",
+#     "www.github.com"
+# ]
 
-run_multi(destinations)
+# run_multi(destinations)
