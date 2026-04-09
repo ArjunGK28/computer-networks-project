@@ -91,7 +91,7 @@ def graph_loop(hops, stop_event, destination):
     filename = destination.replace(".", "_")
 
     fig.savefig(f"{filename}_network_analysis.png")
-    print(f"\n📸 Graph saved as {filename}_network_analysis.png")
+    print(f"\nGraph saved as {filename}_network_analysis.png")
 
     plt.ioff()
     plt.close(fig)
@@ -107,6 +107,7 @@ class HopStats:
         self.rtts = deque(maxlen=100)
         self.ips = deque(maxlen=50)
         self.lock = threading.Lock()
+        self.is_destination = False
 
     def record_sent(self):
         with self.lock:
@@ -214,6 +215,7 @@ def probe_loop(dest_ip, hops, max_hops, interval, stop_event):
 
                         elif result == "done":
                             hop.record_reply(addr[0], rtt)
+                            hop.is_destination = True
                             destination_reached = True
                             break
 
@@ -300,7 +302,7 @@ def generate_summary(hops):
     destination_reached = False
 
     for i, hop in enumerate(hops):
-        if hop.received > 0:
+        if getattr(hop, "is_destination", False):
             destination_reached = True
 
         next_hop = hops[i+1] if i+1 < len(hops) else None
@@ -338,7 +340,7 @@ def generate_summary(hops):
 # ── MAIN ─────────────────────────────────────────────────────────────────────
 
 def run_mtr(destination, max_hops=30, interval=0.5):
-
+    
     dest_ip = socket.gethostbyname(destination)
     print(f"\nStarting MTR to {destination} ({dest_ip})")
 
@@ -414,7 +416,7 @@ def run_multi(destinations):
 
 # ── RUN ──────────────────────────────────────────────────────────────────────
 
-run_mtr("www.google.com")
+run_mtr("www.youtube.com")
 
 # destinations = [
 #     "www.google.com",
