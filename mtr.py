@@ -296,7 +296,7 @@ def print_final_table(hops, destination):
               f"{hop.loss_perc():>5.1f}% {avg:>8} {mn:>8} {mx:>8} {jit:>8} {note}")
 
 #___ SUMMARY-FUNCTION _________________________________________________________
-def generate_summary(hops):
+def generate_summary(hops, destination, dest_ip):
     icmp_blocked_hops = []
     congestion_found = False
     destination_reached = False
@@ -315,6 +315,7 @@ def generate_summary(hops):
         if hop.is_congested():
             congestion_found = True
 
+    print(f"\nTarget: {destination} ({dest_ip})")
     print("\nNetwork Summary")
     print("-" * 30)
 
@@ -373,7 +374,7 @@ def run_mtr(destination, max_hops=30, interval=0.5):
         time.sleep(1)
 
         print("\nStopped.")
-        generate_summary(hops) 
+        generate_summary(hops, destination, dest_ip) 
 
 #____MULTI-DESTINATION-RUNNER__________________________________________________
 def run_multi(destinations):
@@ -408,7 +409,7 @@ def run_multi(destinations):
             print_final_table(hops, dest)
 
             #  Print summary
-            generate_summary(hops)
+            generate_summary(hops, dest, dest_ip)
 
         except Exception as e:
             print(f"\nError with {dest}: {e}")
@@ -416,7 +417,7 @@ def run_multi(destinations):
 
 # ── RUN ──────────────────────────────────────────────────────────────────────
 
-run_mtr("www.youtube.com")
+run_mtr("pes.edu")
 
 # destinations = [
 #     "www.google.com",
