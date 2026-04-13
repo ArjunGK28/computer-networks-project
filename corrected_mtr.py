@@ -457,11 +457,11 @@ def run_multi(destinations):
 if __name__ == "__main__":
     
     # You can run a single destination:
-    # run_mtr("www.youtube.com")
+    run_mtr("www.youtube.com")
 
     # Or run multiple concurrently:
-    destinations = [
-        "www.google.com",
-        "www.youtube.com"
-    ]
-    run_multi(destinations)
+    # destinations = [
+    #     "www.google.com",
+    #     "www.youtube.com"
+    # ]
+    # run_multi(destinations)
