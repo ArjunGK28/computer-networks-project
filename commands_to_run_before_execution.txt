@@ -1,0 +1,2 @@
+To allow icmpv4 packets into the system run this command in the cmd(administrator):
+netsh advfirewall firewall add rule name="Allow Incoming ICMPv4 (MTR Testing)" protocol=icmpv4 dir=in action=allow
